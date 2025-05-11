@@ -310,43 +310,66 @@ class HomevoltSensor(CoordinatorEntity, SensorEntity):
         self.ems_index = ems_index
         self.sensor_index = sensor_index
 
-        # Create a unique ID based on the device index if available
-        if ems_index is not None:
-            self._attr_unique_id = f"{DOMAIN}_{description.key}_ems_{ems_index}"
-        elif sensor_index is not None:
-            self._attr_unique_id = f"{DOMAIN}_{description.key}_sensor_{sensor_index}"
+        # Create a unique ID based on the device properties if available
+        if ems_index is not None and coordinator.data and ATTR_EMS in coordinator.data:
+            try:
+                # Use the ecu_id for a consistent unique ID across different IP addresses
+                ems_data = coordinator.data[ATTR_EMS][ems_index]
+                ecu_id = ems_data.get(ATTR_ECU_ID, f"unknown_{ems_index}")
+                self._attr_unique_id = f"{DOMAIN}_{description.key}_ems_{ecu_id}"
+            except (KeyError, IndexError):
+                # Fallback to a generic unique ID if we can't get the ecu_id
+                self._attr_unique_id = f"{DOMAIN}_{description.key}_ems_{ems_index}"
+        elif sensor_index is not None and coordinator.data and ATTR_SENSORS in coordinator.data:
+            try:
+                # Use the euid for a consistent unique ID across different IP addresses
+                sensor_data = coordinator.data[ATTR_SENSORS][sensor_index]
+                euid = sensor_data.get(ATTR_EUID, f"unknown_{sensor_index}")
+                self._attr_unique_id = f"{DOMAIN}_{description.key}_sensor_{euid}"
+            except (KeyError, IndexError):
+                # Fallback to a generic unique ID if we can't get the euid
+                self._attr_unique_id = f"{DOMAIN}_{description.key}_sensor_{sensor_index}"
         else:
-            self._attr_unique_id = f"{DOMAIN}_{description.key}"
+            # For aggregated sensors, use the host from the resource URL for a consistent unique ID
+            host = coordinator.resource.split("://")[1].split("/")[0]
+            self._attr_unique_id = f"{DOMAIN}_{description.key}_{host}"
 
         self._attr_device_info = self.device_info
 
     @property
     def device_info(self) -> DeviceInfo:
         """Return device information about this Homevolt device."""
-        # Main aggregated device ID
-        main_device_id = self.coordinator.entry_id
+        # Main aggregated device ID - use the host from the resource URL to make it consistent
+        # across different config entries for the same physical system
+        host = self.coordinator.resource.split("://")[1].split("/")[0]
+        main_device_id = f"homevolt_{host}"
 
         if self.ems_index is not None and self.coordinator.data:
             # Get device-specific information from the ems data
             try:
                 ems_data = self.coordinator.data[ATTR_EMS][self.ems_index]
                 ecu_id = ems_data.get(ATTR_ECU_ID, f"unknown_{self.ems_index}")
+                serial_number = ems_data.get("inv_info", {}).get(ATTR_SERIAL_NUMBER, "")
 
                 # Try to get more detailed information for the device name
                 fw_version = ems_data.get("ems_info", {}).get(ATTR_FW_VERSION, "")
 
+                # Use the ecu_id as the unique identifier, which should be consistent
+                # across different IP addresses for the same physical device
                 return DeviceInfo(
-                    identifiers={(DOMAIN, f"{self.coordinator.entry_id}_ems_{ecu_id}")},
-                    name=f"Homevolt EMS {self.ems_index + 1}",
+                    identifiers={(DOMAIN, f"ems_{ecu_id}")},
+                    name=f"Homevolt EMS {ecu_id}",
                     manufacturer="Homevolt",
                     model=f"Energy Management System {fw_version}",
                     entry_type=DeviceEntryType.SERVICE,
                     via_device=(DOMAIN, main_device_id),  # Link to the main device
+                    sw_version=fw_version,
+                    hw_version=serial_number,
                 )
             except (KeyError, IndexError):
                 # Fallback to a generic device info if we can't get specific info
                 return DeviceInfo(
-                    identifiers={(DOMAIN, f"{self.coordinator.entry_id}_ems_{self.ems_index}")},
+                    identifiers={(DOMAIN, f"ems_unknown_{self.ems_index}")},
                     name=f"Homevolt EMS {self.ems_index + 1}",
                     manufacturer="Homevolt",
                     model="Energy Management System",
@@ -364,8 +387,10 @@ class HomevoltSensor(CoordinatorEntity, SensorEntity):
                 # Capitalize the first letter of the sensor type for the name
                 sensor_type_name = sensor_type.capitalize()
 
+                # Use the euid as the unique identifier, which should be consistent
+                # across different IP addresses for the same physical sensor
                 return DeviceInfo(
-                    identifiers={(DOMAIN, f"{self.coordinator.entry_id}_sensor_{sensor_type}_{euid}")},
+                    identifiers={(DOMAIN, f"sensor_{euid}")},
                     name=f"Homevolt {sensor_type_name}",
                     manufacturer="Homevolt",
                     model=f"{sensor_type_name} Sensor (Node {node_id})",
@@ -375,7 +400,7 @@ class HomevoltSensor(CoordinatorEntity, SensorEntity):
             except (KeyError, IndexError):
                 # Fallback to a generic device info if we can't get specific info
                 return DeviceInfo(
-                    identifiers={(DOMAIN, f"{self.coordinator.entry_id}_sensor_{self.sensor_index}")},
+                    identifiers={(DOMAIN, f"sensor_unknown_{self.sensor_index}")},
                     name=f"Homevolt Sensor {self.sensor_index + 1}",
                     manufacturer="Homevolt",
                     model="Sensor",
@@ -386,7 +411,7 @@ class HomevoltSensor(CoordinatorEntity, SensorEntity):
             # For aggregated sensors or if no ems_index or sensor_index is provided
             return DeviceInfo(
                 identifiers={(DOMAIN, main_device_id)},
-                name="Homevolt Local",
+                name=f"Homevolt Local ({host})",
                 manufacturer="Homevolt",
                 model="Energy Management System",
                 entry_type=DeviceEntryType.SERVICE,

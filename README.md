@@ -33,9 +33,19 @@ This is a custom integration for Home Assistant that connects to a Homevolt Ener
 2. Click "Add Integration"
 3. Search for "Homevolt Local"
 4. Follow the configuration steps:
-   - Enter the API URL
+   - Enter the IP address or hostname of your Homevolt system
    - Enter your username and password
    - Configure optional settings (SSL verification, scan interval, timeout)
+
+### Multiple IP Addresses
+
+If your Homevolt system has multiple IP addresses (for example, if you have multiple controllers that are linked together), you can add each IP address as a separate integration. The integration will automatically detect and prevent duplicate devices and sensors for the same physical devices.
+
+To add multiple IP addresses:
+
+1. Add the first IP address as described above
+2. Repeat the process for each additional IP address
+3. The integration will use unique identifiers for each device based on their internal IDs, ensuring that the same physical device is represented only once in Home Assistant, regardless of which IP address it's accessed through
 
 ## Devices and Sensors
 
