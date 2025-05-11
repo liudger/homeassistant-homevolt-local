@@ -40,3 +40,6 @@ venv.bak/
 .storage/
 .cloud/
 .HA_VERSION
+
+# Project specific
+examples/
