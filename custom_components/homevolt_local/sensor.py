@@ -22,24 +22,34 @@ from . import HomevoltDataUpdateCoordinator
 from .const import (
     ATTR_AGGREGATED,
     ATTR_AVAILABLE,
+    ATTR_ECU_ID,
     ATTR_EMS,
     ATTR_EMS_DATA,
+    ATTR_EMS_INFO,
     ATTR_ENERGY_CONSUMED,
     ATTR_ENERGY_EXPORTED,
     ATTR_ENERGY_IMPORTED,
     ATTR_ENERGY_PRODUCED,
     ATTR_ERROR_STR,
     ATTR_EUID,
+    ATTR_FW_VERSION,
+    ATTR_INV_INFO,
     ATTR_NODE_ID,
     ATTR_PHASE,
     ATTR_POWER,
     ATTR_SENSORS,
+    ATTR_SERIAL_NUMBER,
     ATTR_SOC_AVG,
     ATTR_STATE_STR,
     ATTR_TIMESTAMP,
     ATTR_TOTAL_POWER,
     ATTR_TYPE,
+    BMS_DATA_INDEX_DEVICE,
+    BMS_DATA_INDEX_TOTAL,
     DOMAIN,
+    SENSOR_INDEX_GRID,
+    SENSOR_INDEX_LOAD,
+    SENSOR_INDEX_SOLAR,
     SENSOR_TYPE_GRID,
     SENSOR_TYPE_LOAD,
     SENSOR_TYPE_SOLAR,
@@ -91,7 +101,7 @@ SENSOR_DESCRIPTIONS: tuple[HomevoltSensorEntityDescription, ...] = (
         name="Homevolt battery SoC",
         device_class=SensorDeviceClass.BATTERY,
         native_unit_of_measurement="%",
-        value_fn=lambda data, idx=0: float(data[ATTR_EMS][idx]["bms_data"][0]["soc"]) / 100,
+        value_fn=lambda data, idx=0: float(data[ATTR_EMS][idx]["bms_data"][BMS_DATA_INDEX_DEVICE]["soc"]) / 100,
         device_specific=True,
     ),
     HomevoltSensorEntityDescription(
@@ -99,7 +109,7 @@ SENSOR_DESCRIPTIONS: tuple[HomevoltSensorEntityDescription, ...] = (
         name="Homevolt Total SoC",
         device_class=SensorDeviceClass.BATTERY,
         native_unit_of_measurement="%",
-        value_fn=lambda data: float(data[ATTR_AGGREGATED]["bms_data"][1]["soc"]) / 100,
+        value_fn=lambda data: float(data[ATTR_AGGREGATED]["bms_data"][BMS_DATA_INDEX_TOTAL]["soc"]) / 100,
     ),
     HomevoltSensorEntityDescription(
         key="power",
@@ -184,8 +194,8 @@ SENSOR_DESCRIPTIONS: tuple[HomevoltSensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement="W",
         icon="mdi:transmission-tower",
-        value_fn=lambda data, idx=0: data[ATTR_SENSORS][idx][ATTR_TOTAL_POWER],
-        attrs_fn=lambda data, idx=0: {
+        value_fn=lambda data, idx=SENSOR_INDEX_GRID: data[ATTR_SENSORS][idx][ATTR_TOTAL_POWER],
+        attrs_fn=lambda data, idx=SENSOR_INDEX_GRID: {
             ATTR_PHASE: data[ATTR_SENSORS][idx][ATTR_PHASE],
         },
         sensor_specific=True,
@@ -198,7 +208,7 @@ SENSOR_DESCRIPTIONS: tuple[HomevoltSensorEntityDescription, ...] = (
         state_class=SensorStateClass.TOTAL,
         native_unit_of_measurement="kWh",
         icon="mdi:transmission-tower-import",
-        value_fn=lambda data, idx=0: data[ATTR_SENSORS][idx][ATTR_ENERGY_IMPORTED],
+        value_fn=lambda data, idx=SENSOR_INDEX_GRID: data[ATTR_SENSORS][idx][ATTR_ENERGY_IMPORTED],
         sensor_specific=True,
         sensor_type=SENSOR_TYPE_GRID,
     ),
@@ -209,7 +219,7 @@ SENSOR_DESCRIPTIONS: tuple[HomevoltSensorEntityDescription, ...] = (
         state_class=SensorStateClass.TOTAL,
         native_unit_of_measurement="kWh",
         icon="mdi:transmission-tower-export",
-        value_fn=lambda data, idx=0: data[ATTR_SENSORS][idx][ATTR_ENERGY_EXPORTED],
+        value_fn=lambda data, idx=SENSOR_INDEX_GRID: data[ATTR_SENSORS][idx][ATTR_ENERGY_EXPORTED],
         sensor_specific=True,
         sensor_type=SENSOR_TYPE_GRID,
     ),
@@ -222,8 +232,8 @@ SENSOR_DESCRIPTIONS: tuple[HomevoltSensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement="W",
         icon="mdi:solar-power",
-        value_fn=lambda data, idx=1: data[ATTR_SENSORS][idx][ATTR_TOTAL_POWER],
-        attrs_fn=lambda data, idx=1: {
+        value_fn=lambda data, idx=SENSOR_INDEX_SOLAR: data[ATTR_SENSORS][idx][ATTR_TOTAL_POWER],
+        attrs_fn=lambda data, idx=SENSOR_INDEX_SOLAR: {
             ATTR_PHASE: data[ATTR_SENSORS][idx][ATTR_PHASE],
         },
         sensor_specific=True,
@@ -236,7 +246,7 @@ SENSOR_DESCRIPTIONS: tuple[HomevoltSensorEntityDescription, ...] = (
         state_class=SensorStateClass.TOTAL,
         native_unit_of_measurement="kWh",
         icon="mdi:solar-power-variant",
-        value_fn=lambda data, idx=1: data[ATTR_SENSORS][idx][ATTR_ENERGY_IMPORTED],
+        value_fn=lambda data, idx=SENSOR_INDEX_SOLAR: data[ATTR_SENSORS][idx][ATTR_ENERGY_IMPORTED],
         sensor_specific=True,
         sensor_type=SENSOR_TYPE_SOLAR,
     ),
@@ -247,7 +257,7 @@ SENSOR_DESCRIPTIONS: tuple[HomevoltSensorEntityDescription, ...] = (
         state_class=SensorStateClass.TOTAL,
         native_unit_of_measurement="kWh",
         icon="mdi:solar-power-variant-outline",
-        value_fn=lambda data, idx=1: data[ATTR_SENSORS][idx][ATTR_ENERGY_EXPORTED],
+        value_fn=lambda data, idx=SENSOR_INDEX_SOLAR: data[ATTR_SENSORS][idx][ATTR_ENERGY_EXPORTED],
         sensor_specific=True,
         sensor_type=SENSOR_TYPE_SOLAR,
     ),
@@ -260,8 +270,8 @@ SENSOR_DESCRIPTIONS: tuple[HomevoltSensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement="W",
         icon="mdi:home-lightning-bolt",
-        value_fn=lambda data, idx=2: data[ATTR_SENSORS][idx][ATTR_TOTAL_POWER],
-        attrs_fn=lambda data, idx=2: {
+        value_fn=lambda data, idx=SENSOR_INDEX_LOAD: data[ATTR_SENSORS][idx][ATTR_TOTAL_POWER],
+        attrs_fn=lambda data, idx=SENSOR_INDEX_LOAD: {
             ATTR_PHASE: data[ATTR_SENSORS][idx][ATTR_PHASE],
         },
         sensor_specific=True,
@@ -274,7 +284,7 @@ SENSOR_DESCRIPTIONS: tuple[HomevoltSensorEntityDescription, ...] = (
         state_class=SensorStateClass.TOTAL,
         native_unit_of_measurement="kWh",
         icon="mdi:home-import-outline",
-        value_fn=lambda data, idx=2: data[ATTR_SENSORS][idx][ATTR_ENERGY_IMPORTED],
+        value_fn=lambda data, idx=SENSOR_INDEX_LOAD: data[ATTR_SENSORS][idx][ATTR_ENERGY_IMPORTED],
         sensor_specific=True,
         sensor_type=SENSOR_TYPE_LOAD,
     ),
@@ -285,7 +295,7 @@ SENSOR_DESCRIPTIONS: tuple[HomevoltSensorEntityDescription, ...] = (
         state_class=SensorStateClass.TOTAL,
         native_unit_of_measurement="kWh",
         icon="mdi:home-export-outline",
-        value_fn=lambda data, idx=2: data[ATTR_SENSORS][idx][ATTR_ENERGY_EXPORTED],
+        value_fn=lambda data, idx=SENSOR_INDEX_LOAD: data[ATTR_SENSORS][idx][ATTR_ENERGY_EXPORTED],
         sensor_specific=True,
         sensor_type=SENSOR_TYPE_LOAD,
     ),
@@ -349,10 +359,10 @@ class HomevoltSensor(CoordinatorEntity, SensorEntity):
             try:
                 ems_data = self.coordinator.data[ATTR_EMS][self.ems_index]
                 ecu_id = ems_data.get(ATTR_ECU_ID, f"unknown_{self.ems_index}")
-                serial_number = ems_data.get("inv_info", {}).get(ATTR_SERIAL_NUMBER, "")
+                serial_number = ems_data.get(ATTR_INV_INFO, {}).get(ATTR_SERIAL_NUMBER, "")
 
                 # Try to get more detailed information for the device name
-                fw_version = ems_data.get("ems_info", {}).get(ATTR_FW_VERSION, "")
+                fw_version = ems_data.get(ATTR_EMS_INFO, {}).get(ATTR_FW_VERSION, "")
 
                 # Use the ecu_id as the unique identifier, which should be consistent
                 # across different IP addresses for the same physical device

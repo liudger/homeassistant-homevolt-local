@@ -26,6 +26,7 @@ ATTR_SERIAL_NUMBER = "serial_number"
 ATTR_FW_VERSION = "fw_version"
 ATTR_INV_INFO = "inv_info"
 ATTR_BMS_INFO = "bms_info"
+ATTR_EMS_INFO = "ems_info"
 
 # Sensor data attributes
 ATTR_TOTAL_POWER = "total_power"
@@ -44,3 +45,12 @@ ATTR_TIMESTAMP = "timestamp"
 SENSOR_TYPE_GRID = "grid"
 SENSOR_TYPE_SOLAR = "solar"
 SENSOR_TYPE_LOAD = "load"
+
+# Sensor indices
+SENSOR_INDEX_GRID = 0
+SENSOR_INDEX_SOLAR = 1
+SENSOR_INDEX_LOAD = 2
+
+# BMS data indices
+BMS_DATA_INDEX_DEVICE = 0
+BMS_DATA_INDEX_TOTAL = 1

@@ -24,7 +24,7 @@ This is a custom integration for Home Assistant that connects to a Homevolt Ener
 
 ### Manual Installation
 
-1. Copy the `custom_components/homevolt` directory to your Home Assistant's `custom_components` directory
+1. Copy the `custom_components/homevolt_local` directory to your Home Assistant's `custom_components` directory
 2. Restart Home Assistant
 
 ## Configuration
