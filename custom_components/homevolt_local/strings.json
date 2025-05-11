@@ -1,0 +1,27 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect to Homevolt Local",
+        "description": "Set up Homevolt Local integration",
+        "data": {
+          "host": "IP or Hostname",
+          "username": "Username",
+          "password": "Password",
+          "verify_ssl": "Verify SSL certificate",
+          "scan_interval": "Scan interval (seconds)",
+          "timeout": "Timeout (seconds)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect",
+      "invalid_auth": "Invalid authentication",
+      "invalid_resource": "Invalid IP or hostname format",
+      "unknown": "Unexpected error"
+    },
+    "abort": {
+      "already_configured": "Device is already configured"
+    }
+  }
+}
