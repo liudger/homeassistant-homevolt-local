@@ -37,18 +37,59 @@ This is a custom integration for Home Assistant that connects to a Homevolt Ener
    - Enter your username and password
    - Configure optional settings (SSL verification, scan interval, timeout)
 
-## Sensors
+## Devices and Sensors
 
-This integration provides the following sensors:
+This integration detects and creates separate devices for each Energy Management System (EMS) unit and sensor found in your Homevolt Local system. Each device has its own set of sensors, and there are also aggregated sensors that show combined data from all devices.
+
+### Aggregated Sensors
+
+These sensors show combined data from all EMS units:
 
 1. **Homevolt Status**: Shows the current state of the EMS with a dynamic icon that changes based on the battery level
 2. **Homevolt Error**: Shows error information when available
-3. **Homevolt battery 1 SoC**: Shows the state of charge for battery 1 as a percentage
-4. **Homevolt battery 2 SoC**: Shows the state of charge for battery 2 as a percentage
-5. **Homevolt Total SoC**: Shows the total state of charge as a percentage
-6. **Homevolt effekt**: Shows the current power in watts
-7. **Homevolt energi producerat**: Shows the energy produced in kilowatts
-8. **Homevolt energi konsumerat**: Shows the energy consumed in kilowatts
+3. **Homevolt Total SoC**: Shows the total state of charge as a percentage
+4. **Homevolt effekt**: Shows the current power in watts
+5. **Homevolt energi producerat**: Shows the energy produced in kilowatts
+6. **Homevolt energi konsumerat**: Shows the energy consumed in kilowatts
+
+### EMS Device-Specific Sensors
+
+Each EMS device will have the following sensors:
+
+1. **Homevolt battery SoC**: Shows the state of charge for the battery as a percentage
+2. **Status**: Shows the current state of the specific EMS device
+3. **Power**: Shows the power of the specific EMS device in watts
+4. **Energy Produced**: Shows the energy produced by the specific EMS device in kilowatts
+5. **Energy Consumed**: Shows the energy consumed by the specific EMS device in kilowatts
+6. **Error**: Shows error information specific to the device when available
+
+### Sensor Devices
+
+The integration also creates separate devices for each sensor in the system:
+
+#### Grid Sensor
+
+The Grid sensor device provides information about the power flow to and from the grid:
+
+1. **Power**: Shows the current power flow in watts (positive for import, negative for export)
+2. **Energy Imported**: Shows the total energy imported from the grid in kilowatt-hours
+3. **Energy Exported**: Shows the total energy exported to the grid in kilowatt-hours
+
+#### Solar Sensor
+
+The Solar sensor device provides information about your solar production:
+
+1. **Power**: Shows the current solar power production in watts
+2. **Energy Imported**: Shows the total energy imported from the solar system in kilowatt-hours
+3. **Energy Exported**: Shows the total energy exported to the solar system in kilowatt-hours
+
+#### Load Sensor
+
+The Load sensor device provides information about your household consumption:
+
+1. **Power**: Shows the current power consumption in watts
+2. **Energy Imported**: Shows the total energy imported by the loads in kilowatt-hours
+3. **Energy Exported**: Shows the total energy exported by the loads in kilowatt-hours
 
 ## Troubleshooting
 

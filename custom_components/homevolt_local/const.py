@@ -20,8 +20,27 @@ ATTR_POWER = "power"
 ATTR_ENERGY_PRODUCED = "energy_produced"
 ATTR_ENERGY_CONSUMED = "energy_consumed"
 
+# Device identification attributes
+ATTR_ECU_ID = "ecu_id"
+ATTR_SERIAL_NUMBER = "serial_number"
+ATTR_FW_VERSION = "fw_version"
+ATTR_INV_INFO = "inv_info"
+ATTR_BMS_INFO = "bms_info"
+
 # Sensor data attributes
 ATTR_TOTAL_POWER = "total_power"
 ATTR_ENERGY_IMPORTED = "energy_imported"
 ATTR_ENERGY_EXPORTED = "energy_exported"
 ATTR_PHASE = "phase"
+
+# Sensor identification attributes
+ATTR_TYPE = "type"
+ATTR_NODE_ID = "node_id"
+ATTR_EUID = "euid"
+ATTR_AVAILABLE = "available"
+ATTR_TIMESTAMP = "timestamp"
+
+# Sensor types
+SENSOR_TYPE_GRID = "grid"
+SENSOR_TYPE_SOLAR = "solar"
+SENSOR_TYPE_LOAD = "load"
