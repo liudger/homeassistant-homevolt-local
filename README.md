@@ -107,6 +107,14 @@ The Load sensor device provides information about your household consumption:
 - Verify that your Homevolt Local is online and accessible from your Home Assistant instance
 - Check the Home Assistant logs for detailed error messages
 
+## Development
+
+### Development Container
+
+This project includes a development container configuration that provides a consistent development environment with all the necessary tools and dependencies pre-installed. The development container supports both VS Code and PyCharm.
+
+For more information on how to use the development container, see the [.devcontainer/README.md](.devcontainer/README.md) file.
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
