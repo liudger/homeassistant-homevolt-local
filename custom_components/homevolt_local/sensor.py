@@ -497,10 +497,10 @@ class HomevoltSensor(CoordinatorEntity[HomevoltData], SensorEntity):
             if self.entity_description.value_fn:
                 if self.ems_index is not None:
                     # For device-specific sensors, pass the device index to the value_fn
-                    self._attr_native_value = self.entity_description.value_fn(data, self.ems_index)
+                    self._attr_native_value = self.entity_description.value_fn(data)
                 elif self.sensor_index is not None:
                     # For sensor-specific sensors, pass the sensor index to the value_fn
-                    self._attr_native_value = self.entity_description.value_fn(data, self.sensor_index)
+                    self._attr_native_value = self.entity_description.value_fn(data)
                 else:
                     # For aggregated sensors, just pass the data
                     self._attr_native_value = self.entity_description.value_fn(data)
@@ -509,10 +509,10 @@ class HomevoltSensor(CoordinatorEntity[HomevoltData], SensorEntity):
             if self.entity_description.icon_fn:
                 if self.ems_index is not None:
                     # For device-specific sensors, pass the device index to the icon_fn
-                    self._attr_icon = self.entity_description.icon_fn(data, self.ems_index)
+                    self._attr_icon = self.entity_description.icon_fn(data)
                 elif self.sensor_index is not None:
                     # For sensor-specific sensors, pass the sensor index to the icon_fn
-                    self._attr_icon = self.entity_description.icon_fn(data, self.sensor_index)
+                    self._attr_icon = self.entity_description.icon_fn(data)
                 else:
                     # For aggregated sensors, just pass the data
                     self._attr_icon = self.entity_description.icon_fn(data)
@@ -521,10 +521,10 @@ class HomevoltSensor(CoordinatorEntity[HomevoltData], SensorEntity):
             if self.entity_description.attrs_fn:
                 if self.ems_index is not None:
                     # For device-specific sensors, pass the device index to the attrs_fn
-                    self._attr_extra_state_attributes = self.entity_description.attrs_fn(data, self.ems_index)
+                    self._attr_extra_state_attributes = self.entity_description.attrs_fn(data)
                 elif self.sensor_index is not None:
                     # For sensor-specific sensors, pass the sensor index to the attrs_fn
-                    self._attr_extra_state_attributes = self.entity_description.attrs_fn(data, self.sensor_index)
+                    self._attr_extra_state_attributes = self.entity_description.attrs_fn(data)
                 else:
                     # For aggregated sensors, just pass the data
                     self._attr_extra_state_attributes = self.entity_description.attrs_fn(data)
