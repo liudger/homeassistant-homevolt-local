@@ -24,6 +24,3 @@ RUN pip install --no-cache-dir \
 
 # Set up the working directory
 WORKDIR /workspaces/homeassistant-homevolt
-
-# Set the default user
-USER $USERNAME

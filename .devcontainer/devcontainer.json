@@ -52,6 +52,6 @@
     "source=${localWorkspaceFolder},target=/workspaces/homeassistant-homevolt,type=bind,consistency=cached"
   ],
   "runArgs": [
-    "--env-file", ".devcontainer/devcontainer.env"
+    "--env-file", "${localWorkspaceFolder}/.devcontainer/devcontainer.env"
   ]
 }
