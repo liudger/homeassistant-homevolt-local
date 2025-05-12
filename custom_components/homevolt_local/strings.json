@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Connect to Homevolt Local",
-        "description": "Set up Homevolt Local integration",
+        "description": "Set up Homevolt Local integration with your first system",
         "data": {
           "host": "IP or Hostname",
           "username": "Username",
@@ -12,16 +12,36 @@
           "scan_interval": "Scan interval (seconds)",
           "timeout": "Timeout (seconds)"
         }
+      },
+      "add_host": {
+        "title": "Add Additional System",
+        "description": "Add another Homevolt system that is linked to your first system",
+        "data": {
+          "host": "IP or Hostname",
+          "add_another": "Add another system after this one"
+        }
+      },
+      "select_main": {
+        "title": "Select Main System",
+        "description": "Select which system should be considered the main system",
+        "data": {
+          "main_host": "Main System"
+        }
+      },
+      "confirm": {
+        "title": "Confirm Configuration",
+        "description": "The following systems will be configured: {hosts}"
       }
     },
     "error": {
       "cannot_connect": "Failed to connect",
       "invalid_auth": "Invalid authentication",
       "invalid_resource": "Invalid IP or hostname format",
+      "duplicate_host": "This IP address or hostname is already in the list",
       "unknown": "Unexpected error"
     },
     "abort": {
-      "already_configured": "This IP address or hostname is already configured"
+      "already_configured": "A Homevolt Local integration with one of these systems is already configured"
     }
   }
 }

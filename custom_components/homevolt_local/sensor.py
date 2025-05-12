@@ -600,6 +600,10 @@ async def async_setup_entry(
         # Create a set of available sensor types
         available_sensor_types = set()
         for sensor in sensors_data:
+            # Skip sensors that are marked as not available
+            if sensor.get(ATTR_AVAILABLE) is False:
+                continue
+
             sensor_type = sensor.get(ATTR_TYPE)
             if sensor_type:
                 available_sensor_types.add(sensor_type)
@@ -611,7 +615,7 @@ async def async_setup_entry(
                 if description.sensor_type in available_sensor_types:
                     # Find the index of the sensor with this type
                     for idx, sensor in enumerate(sensors_data):
-                        if sensor.get(ATTR_TYPE) == description.sensor_type:
+                        if sensor.get(ATTR_TYPE) == description.sensor_type and sensor.get(ATTR_AVAILABLE) is not False:
                             # Create a sensor for this type
                             sensors.append(HomevoltSensor(coordinator, description, None, idx))
                             break

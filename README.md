@@ -33,19 +33,30 @@ This is a custom integration for Home Assistant that connects to a Homevolt Ener
 2. Click "Add Integration"
 3. Search for "Homevolt Local"
 4. Follow the configuration steps:
-   - Enter the IP address or hostname of your Homevolt system
+   - Enter the IP address or hostname of your first Homevolt system
    - Enter your username and password
    - Configure optional settings (SSL verification, scan interval, timeout)
+   - Add additional IP addresses for linked systems (optional)
+   - Select which system should be considered the main system (if you added multiple)
+   - Confirm the configuration
 
 ### Multiple IP Addresses
 
-If your Homevolt system has multiple IP addresses (for example, if you have multiple controllers that are linked together), you can add each IP address as a separate integration. The integration will automatically detect and prevent duplicate devices and sensors for the same physical devices.
+If your Homevolt system has multiple IP addresses (for example, if you have multiple controllers that are linked together), you can now add all IP addresses during the initial setup process. This creates a single integration instance that manages all your linked systems.
 
-To add multiple IP addresses:
+Benefits of this approach:
+- All systems are managed by a single integration instance
+- Data from all systems is merged automatically
+- Duplicate devices and sensors are automatically detected and prevented
+- You can designate one system as the "main system" which will be used as the primary data source
 
-1. Add the first IP address as described above
-2. Repeat the process for each additional IP address
-3. The integration will use unique identifiers for each device based on their internal IDs, ensuring that the same physical device is represented only once in Home Assistant, regardless of which IP address it's accessed through
+During setup, you'll be guided through:
+1. Adding your first system (IP/hostname, credentials, and settings)
+2. Adding additional systems one by one (with an option to add more after each)
+3. Selecting which system should be considered the main system
+4. Confirming the final configuration
+
+The integration uses unique identifiers for each device based on their internal IDs, ensuring that the same physical device is represented only once in Home Assistant, regardless of which IP address it's accessed through.
 
 ## Devices and Sensors
 
