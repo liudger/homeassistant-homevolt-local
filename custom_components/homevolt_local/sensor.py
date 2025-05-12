@@ -559,7 +559,24 @@ async def async_setup_entry(
                 if description.device_specific:
                     # Create a modified value_fn that includes the device index
                     if description.value_fn:
-                        # Create a copy of the description to avoid modifying the original
+                        # Create a copy of the description with all necessary attributes
+                        # Include wrapper functions for value_fn, icon_fn, and attrs_fn in the constructor
+                        original_value_fn = description.value_fn
+                        value_fn_wrapper = lambda data, orig_fn=original_value_fn, device_idx=idx: orig_fn(data, device_idx)
+
+                        # Prepare icon_fn wrapper if it exists
+                        icon_fn_wrapper = None
+                        if description.icon_fn:
+                            original_icon_fn = description.icon_fn
+                            icon_fn_wrapper = lambda data, orig_fn=original_icon_fn, device_idx=idx: orig_fn(data, device_idx)
+
+                        # Prepare attrs_fn wrapper if it exists
+                        attrs_fn_wrapper = None
+                        if description.attrs_fn:
+                            original_attrs_fn = description.attrs_fn
+                            attrs_fn_wrapper = lambda data, orig_fn=original_attrs_fn, device_idx=idx: orig_fn(data, device_idx)
+
+                        # Create the modified description with all wrappers included in the constructor
                         modified_description = HomevoltSensorEntityDescription(
                             key=description.key,
                             name=description.name,
@@ -567,21 +584,10 @@ async def async_setup_entry(
                             native_unit_of_measurement=description.native_unit_of_measurement,
                             icon=description.icon,
                             device_specific=description.device_specific,
+                            value_fn=value_fn_wrapper,
+                            icon_fn=icon_fn_wrapper,
+                            attrs_fn=attrs_fn_wrapper,
                         )
-
-                        # Create a wrapper function that passes the device index to the original value_fn
-                        original_value_fn = description.value_fn
-                        modified_description.value_fn = lambda data, orig_fn=original_value_fn, device_idx=idx: orig_fn(data, device_idx)
-
-                        # If there's an icon_fn, create a wrapper for it too
-                        if description.icon_fn:
-                            original_icon_fn = description.icon_fn
-                            modified_description.icon_fn = lambda data, orig_fn=original_icon_fn, device_idx=idx: orig_fn(data, device_idx)
-
-                        # If there's an attrs_fn, create a wrapper for it too
-                        if description.attrs_fn:
-                            original_attrs_fn = description.attrs_fn
-                            modified_description.attrs_fn = lambda data, orig_fn=original_attrs_fn, device_idx=idx: orig_fn(data, device_idx)
 
                         sensors.append(HomevoltSensor(coordinator, modified_description, idx))
                     else:
