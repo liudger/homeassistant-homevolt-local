@@ -4,7 +4,7 @@ from __future__ import annotations
 import asyncio
 import logging
 from datetime import timedelta
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 import aiohttp
 import async_timeout
@@ -40,6 +40,7 @@ from .const import (
     DEFAULT_TIMEOUT,
     DOMAIN,
 )
+from .models import HomevoltData
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -116,7 +117,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     return unload_ok
 
 
-class HomevoltDataUpdateCoordinator(DataUpdateCoordinator):
+class HomevoltDataUpdateCoordinator(DataUpdateCoordinator[Union[HomevoltData, Dict[str, Any]]]):
     """Class to manage fetching Homevolt data."""
 
     def __init__(
@@ -162,7 +163,7 @@ class HomevoltDataUpdateCoordinator(DataUpdateCoordinator):
         except (aiohttp.ClientError, ValueError) as error:
             raise UpdateFailed(f"Error fetching data from {resource}: {error}") from error
 
-    async def _async_update_data(self) -> Dict[str, Any]:
+    async def _async_update_data(self) -> HomevoltData:
         """Fetch data from all Homevolt API resources."""
         if not self.resources:
             raise UpdateFailed("No resources configured")
@@ -195,9 +196,10 @@ class HomevoltDataUpdateCoordinator(DataUpdateCoordinator):
             main_data = valid_results[0][1]
 
         # Merge data from all systems
-        merged_data = self._merge_data(valid_results, main_data)
+        merged_dict_data = self._merge_data(valid_results, main_data)
 
-        return merged_data
+        # Convert the merged dictionary data to a HomevoltData object
+        return HomevoltData.from_dict(merged_dict_data)
 
     def _merge_data(self, results: List[tuple[str, Dict[str, Any]]], main_data: Dict[str, Any]) -> Dict[str, Any]:
         """Merge data from multiple systems."""
