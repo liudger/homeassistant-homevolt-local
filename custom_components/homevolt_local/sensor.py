@@ -101,7 +101,7 @@ SENSOR_DESCRIPTIONS: tuple[HomevoltSensorEntityDescription, ...] = (
         name="Homevolt battery SoC",
         device_class=SensorDeviceClass.BATTERY,
         native_unit_of_measurement="%",
-        value_fn=lambda data, idx=0: float(data[ATTR_EMS][idx]["bms_data"][BMS_DATA_INDEX_DEVICE]["soc"]) / 100,
+        value_fn=lambda data, idx=0: float(data[ATTR_EMS][idx]["bms_data"][BMS_DATA_INDEX_DEVICE]["soc"]) / 100 if idx < len(data[ATTR_EMS]) else None,
         device_specific=True,
     ),
     HomevoltSensorEntityDescription(
@@ -139,11 +139,11 @@ SENSOR_DESCRIPTIONS: tuple[HomevoltSensorEntityDescription, ...] = (
     HomevoltSensorEntityDescription(
         key="device_status",
         name="Status",
-        value_fn=lambda data, idx=0: data[ATTR_EMS][idx][ATTR_EMS_DATA][ATTR_STATE_STR],
+        value_fn=lambda data, idx=0: data[ATTR_EMS][idx][ATTR_EMS_DATA][ATTR_STATE_STR] if idx < len(data[ATTR_EMS]) else None,
         icon_fn=lambda data, idx=0: (
             "mdi:battery-outline"
-            if float(data[ATTR_EMS][idx][ATTR_EMS_DATA][ATTR_SOC_AVG]) < 5
-            else f"mdi:battery-{int(round(float(data[ATTR_EMS][idx][ATTR_EMS_DATA][ATTR_SOC_AVG]) / 10.0) * 10)}"
+            if idx < len(data[ATTR_EMS]) and float(data[ATTR_EMS][idx][ATTR_EMS_DATA][ATTR_SOC_AVG]) < 5
+            else f"mdi:battery-{int(round(float(data[ATTR_EMS][idx][ATTR_EMS_DATA][ATTR_SOC_AVG]) / 10.0) * 10) if idx < len(data[ATTR_EMS]) else 0}"
         ),
         device_specific=True,
     ),
@@ -153,7 +153,7 @@ SENSOR_DESCRIPTIONS: tuple[HomevoltSensorEntityDescription, ...] = (
         device_class=SensorDeviceClass.POWER,
         native_unit_of_measurement="W",
         icon="mdi:battery-sync-outline",
-        value_fn=lambda data, idx=0: data[ATTR_EMS][idx][ATTR_EMS_DATA][ATTR_POWER],
+        value_fn=lambda data, idx=0: data[ATTR_EMS][idx][ATTR_EMS_DATA][ATTR_POWER] if idx < len(data[ATTR_EMS]) else None,
         device_specific=True,
     ),
     HomevoltSensorEntityDescription(
@@ -162,7 +162,7 @@ SENSOR_DESCRIPTIONS: tuple[HomevoltSensorEntityDescription, ...] = (
         device_class=SensorDeviceClass.POWER,
         native_unit_of_measurement="kW",
         icon="mdi:battery-positive",
-        value_fn=lambda data, idx=0: float(data[ATTR_EMS][idx][ATTR_EMS_DATA][ATTR_ENERGY_PRODUCED]) / 1000,
+        value_fn=lambda data, idx=0: float(data[ATTR_EMS][idx][ATTR_EMS_DATA][ATTR_ENERGY_PRODUCED]) / 1000 if idx < len(data[ATTR_EMS]) else None,
         device_specific=True,
     ),
     HomevoltSensorEntityDescription(
@@ -171,16 +171,16 @@ SENSOR_DESCRIPTIONS: tuple[HomevoltSensorEntityDescription, ...] = (
         device_class=SensorDeviceClass.POWER,
         native_unit_of_measurement="kW",
         icon="mdi:battery-negative",
-        value_fn=lambda data, idx=0: float(data[ATTR_EMS][idx][ATTR_EMS_DATA][ATTR_ENERGY_CONSUMED]) / 1000,
+        value_fn=lambda data, idx=0: float(data[ATTR_EMS][idx][ATTR_EMS_DATA][ATTR_ENERGY_CONSUMED]) / 1000 if idx < len(data[ATTR_EMS]) else None,
         device_specific=True,
     ),
     HomevoltSensorEntityDescription(
         key="device_error",
         name="Error",
         icon="mdi:battery-unknown",
-        value_fn=lambda data, idx=0: data[ATTR_EMS][idx][ATTR_ERROR_STR][:255] if data[ATTR_EMS][idx][ATTR_ERROR_STR] else None,
+        value_fn=lambda data, idx=0: data[ATTR_EMS][idx][ATTR_ERROR_STR][:255] if idx < len(data[ATTR_EMS]) and data[ATTR_EMS][idx][ATTR_ERROR_STR] else None,
         attrs_fn=lambda data, idx=0: {
-            ATTR_ERROR_STR: data[ATTR_EMS][idx][ATTR_ERROR_STR],
+            ATTR_ERROR_STR: data[ATTR_EMS][idx][ATTR_ERROR_STR] if idx < len(data[ATTR_EMS]) else "",
         },
         device_specific=True,
     ),
@@ -194,9 +194,9 @@ SENSOR_DESCRIPTIONS: tuple[HomevoltSensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement="W",
         icon="mdi:transmission-tower",
-        value_fn=lambda data, idx=SENSOR_INDEX_GRID: data[ATTR_SENSORS][idx][ATTR_TOTAL_POWER],
-        attrs_fn=lambda data, idx=SENSOR_INDEX_GRID: {
-            ATTR_PHASE: data[ATTR_SENSORS][idx][ATTR_PHASE],
+        value_fn=lambda data: next((s[ATTR_TOTAL_POWER] for s in data[ATTR_SENSORS] if s.get(ATTR_TYPE) == SENSOR_TYPE_GRID), None),
+        attrs_fn=lambda data: {
+            ATTR_PHASE: next((s[ATTR_PHASE] for s in data[ATTR_SENSORS] if s.get(ATTR_TYPE) == SENSOR_TYPE_GRID), None),
         },
         sensor_specific=True,
         sensor_type=SENSOR_TYPE_GRID,
@@ -208,7 +208,7 @@ SENSOR_DESCRIPTIONS: tuple[HomevoltSensorEntityDescription, ...] = (
         state_class=SensorStateClass.TOTAL,
         native_unit_of_measurement="kWh",
         icon="mdi:transmission-tower-import",
-        value_fn=lambda data, idx=SENSOR_INDEX_GRID: data[ATTR_SENSORS][idx][ATTR_ENERGY_IMPORTED],
+        value_fn=lambda data: next((s[ATTR_ENERGY_IMPORTED] for s in data[ATTR_SENSORS] if s.get(ATTR_TYPE) == SENSOR_TYPE_GRID), None),
         sensor_specific=True,
         sensor_type=SENSOR_TYPE_GRID,
     ),
@@ -219,7 +219,7 @@ SENSOR_DESCRIPTIONS: tuple[HomevoltSensorEntityDescription, ...] = (
         state_class=SensorStateClass.TOTAL,
         native_unit_of_measurement="kWh",
         icon="mdi:transmission-tower-export",
-        value_fn=lambda data, idx=SENSOR_INDEX_GRID: data[ATTR_SENSORS][idx][ATTR_ENERGY_EXPORTED],
+        value_fn=lambda data: next((s[ATTR_ENERGY_EXPORTED] for s in data[ATTR_SENSORS] if s.get(ATTR_TYPE) == SENSOR_TYPE_GRID), None),
         sensor_specific=True,
         sensor_type=SENSOR_TYPE_GRID,
     ),
@@ -232,9 +232,9 @@ SENSOR_DESCRIPTIONS: tuple[HomevoltSensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement="W",
         icon="mdi:solar-power",
-        value_fn=lambda data, idx=SENSOR_INDEX_SOLAR: data[ATTR_SENSORS][idx][ATTR_TOTAL_POWER],
-        attrs_fn=lambda data, idx=SENSOR_INDEX_SOLAR: {
-            ATTR_PHASE: data[ATTR_SENSORS][idx][ATTR_PHASE],
+        value_fn=lambda data: next((s[ATTR_TOTAL_POWER] for s in data[ATTR_SENSORS] if s.get(ATTR_TYPE) == SENSOR_TYPE_SOLAR), None),
+        attrs_fn=lambda data: {
+            ATTR_PHASE: next((s[ATTR_PHASE] for s in data[ATTR_SENSORS] if s.get(ATTR_TYPE) == SENSOR_TYPE_SOLAR), None),
         },
         sensor_specific=True,
         sensor_type=SENSOR_TYPE_SOLAR,
@@ -246,7 +246,7 @@ SENSOR_DESCRIPTIONS: tuple[HomevoltSensorEntityDescription, ...] = (
         state_class=SensorStateClass.TOTAL,
         native_unit_of_measurement="kWh",
         icon="mdi:solar-power-variant",
-        value_fn=lambda data, idx=SENSOR_INDEX_SOLAR: data[ATTR_SENSORS][idx][ATTR_ENERGY_IMPORTED],
+        value_fn=lambda data: next((s[ATTR_ENERGY_IMPORTED] for s in data[ATTR_SENSORS] if s.get(ATTR_TYPE) == SENSOR_TYPE_SOLAR), None),
         sensor_specific=True,
         sensor_type=SENSOR_TYPE_SOLAR,
     ),
@@ -257,7 +257,7 @@ SENSOR_DESCRIPTIONS: tuple[HomevoltSensorEntityDescription, ...] = (
         state_class=SensorStateClass.TOTAL,
         native_unit_of_measurement="kWh",
         icon="mdi:solar-power-variant-outline",
-        value_fn=lambda data, idx=SENSOR_INDEX_SOLAR: data[ATTR_SENSORS][idx][ATTR_ENERGY_EXPORTED],
+        value_fn=lambda data: next((s[ATTR_ENERGY_EXPORTED] for s in data[ATTR_SENSORS] if s.get(ATTR_TYPE) == SENSOR_TYPE_SOLAR), None),
         sensor_specific=True,
         sensor_type=SENSOR_TYPE_SOLAR,
     ),
@@ -270,9 +270,9 @@ SENSOR_DESCRIPTIONS: tuple[HomevoltSensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement="W",
         icon="mdi:home-lightning-bolt",
-        value_fn=lambda data, idx=SENSOR_INDEX_LOAD: data[ATTR_SENSORS][idx][ATTR_TOTAL_POWER],
-        attrs_fn=lambda data, idx=SENSOR_INDEX_LOAD: {
-            ATTR_PHASE: data[ATTR_SENSORS][idx][ATTR_PHASE],
+        value_fn=lambda data: next((s[ATTR_TOTAL_POWER] for s in data[ATTR_SENSORS] if s.get(ATTR_TYPE) == SENSOR_TYPE_LOAD), None),
+        attrs_fn=lambda data: {
+            ATTR_PHASE: next((s[ATTR_PHASE] for s in data[ATTR_SENSORS] if s.get(ATTR_TYPE) == SENSOR_TYPE_LOAD), None),
         },
         sensor_specific=True,
         sensor_type=SENSOR_TYPE_LOAD,
@@ -284,7 +284,7 @@ SENSOR_DESCRIPTIONS: tuple[HomevoltSensorEntityDescription, ...] = (
         state_class=SensorStateClass.TOTAL,
         native_unit_of_measurement="kWh",
         icon="mdi:home-import-outline",
-        value_fn=lambda data, idx=SENSOR_INDEX_LOAD: data[ATTR_SENSORS][idx][ATTR_ENERGY_IMPORTED],
+        value_fn=lambda data: next((s[ATTR_ENERGY_IMPORTED] for s in data[ATTR_SENSORS] if s.get(ATTR_TYPE) == SENSOR_TYPE_LOAD), None),
         sensor_specific=True,
         sensor_type=SENSOR_TYPE_LOAD,
     ),
@@ -295,7 +295,7 @@ SENSOR_DESCRIPTIONS: tuple[HomevoltSensorEntityDescription, ...] = (
         state_class=SensorStateClass.TOTAL,
         native_unit_of_measurement="kWh",
         icon="mdi:home-export-outline",
-        value_fn=lambda data, idx=SENSOR_INDEX_LOAD: data[ATTR_SENSORS][idx][ATTR_ENERGY_EXPORTED],
+        value_fn=lambda data: next((s[ATTR_ENERGY_EXPORTED] for s in data[ATTR_SENSORS] if s.get(ATTR_TYPE) == SENSOR_TYPE_LOAD), None),
         sensor_specific=True,
         sensor_type=SENSOR_TYPE_LOAD,
     ),
@@ -473,16 +473,24 @@ class HomevoltSensor(CoordinatorEntity, SensorEntity):
                 if self.entity_description.sensor_type:
                     sensor_type = data[ATTR_SENSORS][self.sensor_index].get(ATTR_TYPE)
                     if sensor_type != self.entity_description.sensor_type:
-                        _LOGGER.error(
-                            "Sensor type mismatch for %s: expected %s, got %s",
-                            self.entity_description.name,
-                            self.entity_description.sensor_type,
-                            sensor_type,
-                        )
-                        self._attr_native_value = None
-                        self._attr_extra_state_attributes = {}
-                        self.async_write_ha_state()
-                        return
+                        # Try to find a sensor with the expected type
+                        found = False
+                        for idx, sensor in enumerate(data[ATTR_SENSORS]):
+                            if sensor.get(ATTR_TYPE) == self.entity_description.sensor_type:
+                                self.sensor_index = idx
+                                found = True
+                                break
+
+                        if not found:
+                            _LOGGER.error(
+                                "Sensor type %s not found for %s",
+                                self.entity_description.sensor_type,
+                                self.entity_description.name,
+                            )
+                            self._attr_native_value = None
+                            self._attr_extra_state_attributes = {}
+                            self.async_write_ha_state()
+                            return
 
             # Set value using the value_fn from the description
             if self.entity_description.value_fn:
@@ -583,50 +591,23 @@ async def async_setup_entry(
     if coordinator.data and ATTR_SENSORS in coordinator.data:
         sensors_data = coordinator.data[ATTR_SENSORS]
 
-        # Create a mapping of sensor types to their indices
-        sensor_type_to_index = {}
-        for idx, sensor in enumerate(sensors_data):
+        # Create a set of available sensor types
+        available_sensor_types = set()
+        for sensor in sensors_data:
             sensor_type = sensor.get(ATTR_TYPE)
             if sensor_type:
-                sensor_type_to_index[sensor_type] = idx
+                available_sensor_types.add(sensor_type)
 
-        # Create sensor-specific sensors for each sensor in the sensors array
+        # Create sensor-specific sensors for each sensor type
         for description in SENSOR_DESCRIPTIONS:
             if description.sensor_specific and description.sensor_type:
                 # Check if we have a sensor of this type
-                if description.sensor_type in sensor_type_to_index:
-                    idx = sensor_type_to_index[description.sensor_type]
-
-                    # Create a modified value_fn that includes the sensor index
-                    if description.value_fn:
-                        # Create a copy of the description to avoid modifying the original
-                        modified_description = HomevoltSensorEntityDescription(
-                            key=description.key,
-                            name=description.name,
-                            device_class=description.device_class,
-                            state_class=description.state_class,
-                            native_unit_of_measurement=description.native_unit_of_measurement,
-                            icon=description.icon,
-                            sensor_specific=description.sensor_specific,
-                            sensor_type=description.sensor_type,
-                        )
-
-                        # Create a wrapper function that passes the sensor index to the original value_fn
-                        original_value_fn = description.value_fn
-                        modified_description.value_fn = lambda data, orig_fn=original_value_fn, sensor_idx=idx: orig_fn(data, sensor_idx)
-
-                        # If there's an icon_fn, create a wrapper for it too
-                        if description.icon_fn:
-                            original_icon_fn = description.icon_fn
-                            modified_description.icon_fn = lambda data, orig_fn=original_icon_fn, sensor_idx=idx: orig_fn(data, sensor_idx)
-
-                        # If there's an attrs_fn, create a wrapper for it too
-                        if description.attrs_fn:
-                            original_attrs_fn = description.attrs_fn
-                            modified_description.attrs_fn = lambda data, orig_fn=original_attrs_fn, sensor_idx=idx: orig_fn(data, sensor_idx)
-
-                        sensors.append(HomevoltSensor(coordinator, modified_description, None, idx))
-                    else:
-                        sensors.append(HomevoltSensor(coordinator, description, None, idx))
+                if description.sensor_type in available_sensor_types:
+                    # Find the index of the sensor with this type
+                    for idx, sensor in enumerate(sensors_data):
+                        if sensor.get(ATTR_TYPE) == description.sensor_type:
+                            # Create a sensor for this type
+                            sensors.append(HomevoltSensor(coordinator, description, None, idx))
+                            break
 
     async_add_entities(sensors)
