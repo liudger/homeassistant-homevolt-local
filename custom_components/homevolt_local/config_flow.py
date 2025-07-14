@@ -64,7 +64,7 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
 
 STEP_ADD_HOST_DATA_SCHEMA = vol.Schema(
     {
-        vol.Required(CONF_HOST): str,
+        vol.Optional(CONF_HOST, default=""): str,
         vol.Optional(CONF_ADD_ANOTHER, default=False): bool,
     }
 )
