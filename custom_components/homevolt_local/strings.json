@@ -6,8 +6,8 @@
         "description": "Set up Homevolt Local integration with your first system",
         "data": {
           "host": "IP or Hostname",
-          "username": "Username",
-          "password": "Password",
+          "username": "Username (optional)",
+          "password": "Password (optional)",
           "verify_ssl": "Verify SSL certificate",
           "scan_interval": "Scan interval (seconds)",
           "timeout": "Timeout (seconds)"
