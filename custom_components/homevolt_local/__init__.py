@@ -77,8 +77,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
         main_host = hosts[0]
 
-    username = entry.data.get(CONF_USERNAME, "").strip() or None
-    password = entry.data.get(CONF_PASSWORD, "").strip() or None
+    username = (entry.data.get(CONF_USERNAME) or "").strip() or None
+    password = (entry.data.get(CONF_PASSWORD) or "").strip() or None
     verify_ssl = entry.data.get(CONF_VERIFY_SSL, True)
     scan_interval = entry.data.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
     timeout = entry.data.get(CONF_TIMEOUT, DEFAULT_TIMEOUT)
