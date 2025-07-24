@@ -77,8 +77,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
         main_host = hosts[0]
 
-    username = entry.data[CONF_USERNAME]
-    password = entry.data[CONF_PASSWORD]
+    username = (entry.data.get(CONF_USERNAME) or "").strip() or None
+    password = (entry.data.get(CONF_PASSWORD) or "").strip() or None
     verify_ssl = entry.data.get(CONF_VERIFY_SSL, True)
     scan_interval = entry.data.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
     timeout = entry.data.get(CONF_TIMEOUT, DEFAULT_TIMEOUT)
@@ -128,8 +128,8 @@ class HomevoltDataUpdateCoordinator(DataUpdateCoordinator[Union[HomevoltData, Di
         resources: List[str],
         hosts: List[str],
         main_host: str,
-        username: str,
-        password: str,
+        username: Optional[str],
+        password: Optional[str],
         session: aiohttp.ClientSession,
         update_interval: timedelta,
         timeout: int,
@@ -153,7 +153,11 @@ class HomevoltDataUpdateCoordinator(DataUpdateCoordinator[Union[HomevoltData, Di
         """Fetch data from a single resource."""
         try:
             async with async_timeout.timeout(self.timeout):
-                auth = aiohttp.BasicAuth(self.username, self.password)
+                # Only use authentication if both username and password are provided
+                auth = None
+                if self.username and self.password:
+                    auth = aiohttp.BasicAuth(self.username, self.password)
+                
                 async with self.session.get(resource, auth=auth) as resp:
                     if resp.status != 200:
                         raise UpdateFailed(f"Error communicating with API: {resp.status}")
