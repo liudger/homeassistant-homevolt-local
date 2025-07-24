@@ -54,8 +54,8 @@ _LOGGER = logging.getLogger(__name__)
 STEP_USER_DATA_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_HOST): str,
-        vol.Required(CONF_USERNAME): str,
-        vol.Required(CONF_PASSWORD): str,
+        vol.Optional(CONF_USERNAME, default=""): str,
+        vol.Optional(CONF_PASSWORD, default=""): str,
         vol.Optional(CONF_VERIFY_SSL, default=True): bool,
         vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): int,
         vol.Optional(CONF_TIMEOUT, default=DEFAULT_TIMEOUT): int,
@@ -64,7 +64,7 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
 
 STEP_ADD_HOST_DATA_SCHEMA = vol.Schema(
     {
-        vol.Required(CONF_HOST): str,
+        vol.Optional(CONF_HOST, default=""): str,
         vol.Optional(CONF_ADD_ANOTHER, default=False): bool,
     }
 )
@@ -192,8 +192,8 @@ class HomevoltConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             try:
                 # Store the credentials and settings
-                self.username = user_input[CONF_USERNAME]
-                self.password = user_input[CONF_PASSWORD]
+                self.username = user_input.get(CONF_USERNAME, "").strip() or None
+                self.password = user_input.get(CONF_PASSWORD, "").strip() or None
                 self.verify_ssl = user_input.get(CONF_VERIFY_SSL, True)
                 self.scan_interval = user_input.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
                 self.timeout = user_input.get(CONF_TIMEOUT, DEFAULT_TIMEOUT)

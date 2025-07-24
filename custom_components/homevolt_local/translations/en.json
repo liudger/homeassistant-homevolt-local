@@ -6,18 +6,18 @@
         "description": "Set up Homevolt Local integration with your first system",
         "data": {
           "host": "IP or Hostname",
-          "username": "Username",
-          "password": "Password",
+          "username": "Username (optional)",
+          "password": "Password (optional)",
           "verify_ssl": "Verify SSL certificate",
           "scan_interval": "Scan interval (seconds)",
           "timeout": "Timeout (seconds)"
         }
       },
       "add_host": {
-        "title": "Add Additional System",
-        "description": "Add another Homevolt system that is linked to your first system",
+        "title": "Add Additional System (Optional)",
+        "description": "Optionally add another Homevolt system that is linked to your first system. Leave the IP or Hostname field empty to skip this step.",
         "data": {
-          "host": "IP or Hostname",
+          "host": "IP or Hostname (optional)",
           "add_another": "Add another system after this one"
         }
       },
