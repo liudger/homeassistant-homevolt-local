@@ -126,6 +126,25 @@ This project includes a development container configuration that provides a cons
 
 For more information on how to use the development container, see the [.devcontainer/README.md](.devcontainer/README.md) file.
 
+### Testing
+
+The project includes a comprehensive testing suite. To run tests:
+
+```bash
+# Run all tests
+pytest tests/
+
+# Run tests with coverage
+pytest tests/ --cov=custom_components/homevolt_local --cov-report=term-missing
+
+# Run specific test files
+pytest tests/test_const.py
+pytest tests/test_models.py
+pytest tests/test_sensor.py
+```
+
+For detailed testing information, see [TESTING.md](TESTING.md).
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
