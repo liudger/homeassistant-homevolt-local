@@ -90,10 +90,10 @@ def construct_resource_url(host: str) -> str:
 async def validate_host(
         hass: HomeAssistant,
         host: str,
-        username: str = None,
-        password: str = None,
+        username: str | None = None,
+        password: str | None = None,
         verify_ssl: bool = True,
-        existing_hosts: list[str] = None
+        existing_hosts: list[str] | None = None
 ) -> dict[str, Any]:
     """Validate a host and return its resource URL."""
     # Validate the host
@@ -145,7 +145,8 @@ async def validate_host(
     if verify_ssl:
         # verify_ssl enabled: try HTTPS only
         _LOGGER.info(
-            "SSL verification enabled, attempting HTTPS connection to: %s", resource_url)
+            "SSL verification enabled, attempting HTTPS connection to: %s",
+            resource_url)
         success = await test_connection(resource_url, ssl_verify=True)
         if not success:
             raise CannotConnect(
@@ -153,7 +154,8 @@ async def validate_host(
     else:
         # verify_ssl disabled: try HTTPS first, then HTTP if it fails
         _LOGGER.info(
-            "SSL verification disabled, attempting HTTPS connection to: %s", resource_url)
+            "SSL verification disabled, attempting HTTPS connection to: %s",
+            resource_url)
         success = await test_connection(resource_url, ssl_verify=False)
         if success:
             _LOGGER.info("Successfully connected using HTTPS")
@@ -222,14 +224,14 @@ class HomevoltConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     def __init__(self) -> None:
         """Initialize the config flow."""
-        self.hosts = []
-        self.resources = []
-        self.main_host = None
-        self.username = None
-        self.password = None
-        self.verify_ssl = True
-        self.scan_interval = DEFAULT_SCAN_INTERVAL
-        self.timeout = DEFAULT_TIMEOUT
+        self.hosts: list[str] = []
+        self.resources: list[str] = []
+        self.main_host: str | None = None
+        self.username: str | None = None
+        self.password: str | None = None
+        self.verify_ssl: bool = True
+        self.scan_interval: int = DEFAULT_SCAN_INTERVAL
+        self.timeout: int = DEFAULT_TIMEOUT
 
     async def async_step_user(
             self, user_input: dict[str, Any] | None = None
@@ -304,7 +306,8 @@ class HomevoltConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     self.hosts.append(host_info["host"])
                     self.resources.append(host_info["resource_url"])
 
-                    # If the user wants to add another host, go back to the add_host step
+                    # If the user wants to add another host, go back to
+                    # the add_host step
                     if user_input.get(CONF_ADD_ANOTHER, False):
                         return await self.async_step_add_host()
 
