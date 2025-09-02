@@ -6,6 +6,7 @@ from typing import Any
 
 import aiohttp
 import voluptuous as vol
+from urllib.parse import urlparse, urlunparse
 
 from homeassistant import config_entries
 from homeassistant.const import (
@@ -101,21 +102,27 @@ async def validate_host(
 
     # Check if the host is already in the list
     if existing_hosts and host in existing_hosts:
-        raise DuplicateHost("This IP address or hostname is already in the list")
+        raise DuplicateHost(
+            "This IP address or hostname is already in the list")
 
     # Construct the resource URL
     resource_url = construct_resource_url(host)
 
-    # If username and password are provided, validate the connection
+    # Always validate the connection, regardless of authentication
+    auth = None
     if username and password:
-        session = async_get_clientsession(hass, verify_ssl=verify_ssl)
+        auth = aiohttp.BasicAuth(username, password)
+
+    # Helper function to test connection
+    async def test_connection(url: str, ssl_verify: bool) -> bool:
+        session = async_get_clientsession(hass, verify_ssl=ssl_verify)
         try:
-            auth = aiohttp.BasicAuth(username, password)
-            async with session.get(resource_url, auth=auth) as response:
+            async with session.get(url, auth=auth) as response:
                 if response.status == 401:
                     raise InvalidAuth("Invalid authentication")
                 elif response.status != 200:
-                    raise CannotConnect(f"Invalid response from API: {response.status}")
+                    raise CannotConnect(
+                        f"Invalid response from API: {response.status}")
 
                 try:
                     response_data = await response.json()
@@ -124,14 +131,56 @@ async def validate_host(
 
                 # Check if the response has the expected structure
                 if "aggregated" not in response_data:
-                    raise CannotConnect("Invalid API response format: 'aggregated' key missing")
+                    raise CannotConnect(
+                        "Invalid API response format: 'aggregated' key missing")
 
+                return True
         except aiohttp.ClientError as err:
-            raise CannotConnect(f"Connection error: {err}")
-        except (InvalidAuth, CannotConnect, InvalidResource, DuplicateHost) as err:
+            _LOGGER.debug("Connection test failed for %s: %s", url, err)
+            return False
+        except (InvalidAuth, CannotConnect):
             raise
-        except Exception as err:
-            raise Exception(f"Error validating API: {err}") from err
+
+    # Determine protocol based on verify_ssl setting
+    if verify_ssl:
+        # verify_ssl enabled: try HTTPS only
+        _LOGGER.info(
+            "SSL verification enabled, attempting HTTPS connection to: %s", resource_url)
+        success = await test_connection(resource_url, ssl_verify=True)
+        if not success:
+            raise CannotConnect(
+                "Failed to connect with HTTPS (SSL verification enabled)")
+    else:
+        # verify_ssl disabled: try HTTPS first, then HTTP if it fails
+        _LOGGER.info(
+            "SSL verification disabled, attempting HTTPS connection to: %s", resource_url)
+        success = await test_connection(resource_url, ssl_verify=False)
+        if success:
+            _LOGGER.info("Successfully connected using HTTPS")
+        else:
+            # Try HTTP
+            parsed = urlparse(resource_url)
+            # Replace https with http and set port to 80
+            netloc_parts = parsed.netloc.split(':')
+            if len(netloc_parts) > 1:
+                # Has port, replace it
+                netloc_parts[-1] = '80'
+                new_netloc = ':'.join(netloc_parts)
+            else:
+                # No port, add :80
+                new_netloc = parsed.netloc + ':80'
+
+            http_parsed = parsed._replace(scheme='http', netloc=new_netloc)
+            http_url = urlunparse(http_parsed)
+            _LOGGER.info(
+                "HTTPS failed, attempting HTTP connection to: %s", http_url)
+            success = await test_connection(http_url, ssl_verify=False)
+            if success:
+                _LOGGER.info("Successfully connected using HTTP")
+                resource_url = http_url
+            else:
+                raise CannotConnect(
+                    "Failed to connect with both HTTPS and HTTP")
 
     # Return the host and resource URL
     return {
@@ -190,10 +239,13 @@ class HomevoltConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             try:
                 # Store the credentials and settings
-                self.username = user_input.get(CONF_USERNAME, "").strip() or None
-                self.password = user_input.get(CONF_PASSWORD, "").strip() or None
+                self.username = user_input.get(
+                    CONF_USERNAME, "").strip() or None
+                self.password = user_input.get(
+                    CONF_PASSWORD, "").strip() or None
                 self.verify_ssl = user_input.get(CONF_VERIFY_SSL, True)
-                self.scan_interval = user_input.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
+                self.scan_interval = user_input.get(
+                    CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
                 self.timeout = user_input.get(CONF_TIMEOUT, DEFAULT_TIMEOUT)
 
                 # Validate the first host
