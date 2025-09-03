@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import Mock
 from custom_components.homevolt_local import HomevoltDataUpdateCoordinator
 from custom_components.homevolt_local.models import ScheduleEntry
 
@@ -6,19 +7,11 @@ from custom_components.homevolt_local.models import ScheduleEntry
 class TestHomevoltDataUpdateCoordinator(unittest.TestCase):
     def test_parse_schedule_data(self):
         """Test parsing of schedule data."""
-        coordinator = HomevoltDataUpdateCoordinator(
-            hass=None,
-            logger=None,
-            entry_id=None,
-            resources=[],
-            hosts=[],
-            main_host="",
-            username="",
-            password="",
-            session=None,
-            update_interval=None,
-            timeout=None,
-        )
+        # Create a mock coordinator object with minimal setup
+        coordinator = Mock(spec=HomevoltDataUpdateCoordinator)
+        
+        # Get the actual _parse_schedule_data method from the class
+        parse_method = HomevoltDataUpdateCoordinator._parse_schedule_data
 
         test_string = """
 esp32> sched_list
@@ -52,7 +45,7 @@ id: 25, type: Grid discharge setpoint, from: 2025-08-24T21:00:00, to: 2025-08-24
 id: 26, type: Idle schedule, from: 2025-08-24T22:00:00, to: 2025-08-25T00:00:00, offline: false
 Command 'sched_list' executed successfully
 """
-        schedule_info = coordinator._parse_schedule_data(test_string)
+        schedule_info = parse_method(coordinator, test_string)
         schedules = schedule_info["entries"]
 
         self.assertEqual(len(schedules), 27)
