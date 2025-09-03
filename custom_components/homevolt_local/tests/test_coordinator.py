@@ -1,15 +1,18 @@
 import unittest
+from datetime import timedelta
+from unittest.mock import Mock, MagicMock
 from custom_components.homevolt_local import HomevoltDataUpdateCoordinator
 
 
 class TestCoordinator(unittest.TestCase):
     def test_merge_data(self):
         """Test the merging of data from multiple systems."""
-        # We don't need a real coordinator object, just something to call the method on
-        coordinator = HomevoltDataUpdateCoordinator(
-            None, None, None, [], [], "", None, None, None, None, None
-        )
-
+        # Create a mock coordinator object with minimal setup
+        coordinator = Mock(spec=HomevoltDataUpdateCoordinator)
+        
+        # Get the actual _merge_data method from the class
+        merge_method = HomevoltDataUpdateCoordinator._merge_data
+        
         main_data = {
             "aggregated": {"ecu_id": 1},
             "ems": [{"ecu_id": 1, "data": "main_ems_1"}],
@@ -39,7 +42,8 @@ class TestCoordinator(unittest.TestCase):
             ),
         ]
 
-        merged_data = coordinator._merge_data(results, main_data)
+        # Call the method with the mock self
+        merged_data = merge_method(coordinator, results, main_data)
 
         # The aggregated data should be from the main data
         self.assertEqual(merged_data["aggregated"]["ecu_id"], 1)
