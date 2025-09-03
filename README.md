@@ -1,13 +1,35 @@
 # Homevolt Local Integration for Home Assistant
 
-This is a custom integration for Home Assistant that connects to a Homevolt Energy Management System (EMS) and provides sensor data.
+[![HACS Custom](https://img.shields.io/badge/HACS-Custom-orange.svg?style=for-the-badge)](https://github.com/hacs/integration)
+[![GitHub Latest Release](https://img.shields.io/github/release/liudger/homeassistant-homevolt-local.svg?style=for-the-badge&color=blue)](https://github.com/liudger/homeassistant-homevolt-local/releases)
+[![GitHub All Releases](https://img.shields.io/github/downloads/liudger/homeassistant-homevolt-local/total.svg?style=for-the-badge&color=blue)](https://github.com/liudger/homeassistant-homevolt-local/releases)
+[![Buy Me A Coffee](https://img.shields.io/badge/buy%20me%20a%20coffee-donate-yellow.svg?style=for-the-badge)](https://buymeacoffee.com/liudger)
+
+This is a custom integration for Home Assistant that connects to a Homevolt Energy Management System (EMS) locally and provides comprehensive sensor data for monitoring your energy system.
 
 ## Features
 
-- Monitors the state of your Homevolt Local
-- Displays battery level with dynamic icons
-- Shows error information when available
-- Configurable through the Home Assistant UI
+- **Real-time Monitoring**: Track your Homevolt system status in real-time
+- **Battery Monitoring**: Monitor battery levels with dynamic icons
+- **Energy Flow**: Track energy consumption, production, and storage
+- **Multi-Device Support**: Support for multiple EMS devices and sensors
+- **Schedule Management**: View and manage charging/discharging schedules
+- **Error Detection**: Display error and warning information when available
+- **Local Polling**: All communication is local, no cloud dependency
+- **Easy Configuration**: Configurable through the Home Assistant UI
+
+## Supported Sensors
+
+The integration provides various sensor types including:
+
+- Battery state and level
+- Power consumption and generation
+- Energy management system status
+- Inverter information
+- Battery management system data
+- Voltage and current readings
+- Temperature monitoring
+- Schedule information
 
 ## Installation
 
@@ -227,6 +249,57 @@ views:
           - entity: sensor.REPLACE_WITH_YOUR_EMS_1_ERROR_SENSOR
             name: Error
 ```
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Connection Timeout**: Ensure your Homevolt system is accessible from Home Assistant
+2. **Authentication Failed**: Verify username and password if required
+3. **No Data**: Check that the EMS resource path is correct
+4. **SSL Errors**: Try disabling SSL verification if using self-signed certificates
+
+### Debug Logging
+
+Enable debug from the dot menu.
+![alt text](image.png)
+
+Or to enable debug logging, add this to your `configuration.yaml`:
+
+```yaml
+logger:
+  default: warning
+  logs:
+    custom_components.homevolt_local: debug
+```
+
+### Getting Help
+
+1. Check the [Issues](https://github.com/JohNan/homeassistant-homevolt-local/issues) page for known problems
+2. Create a new issue with detailed information about your problem
+3. Include relevant log entries and configuration details
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request. Make sure to:
+
+1. Follow the existing code style
+2. Add tests for new functionality
+3. Update documentation as needed
+4. Test your changes thoroughly
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Support
+
+If you find this integration useful, consider supporting the development.
+
+## Acknowledgments
+
+- Thanks to the Home Assistant community for their support and feedback
+- Original inspiration from various energy management integrations
 
 ## Troubleshooting
 
