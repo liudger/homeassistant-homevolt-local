@@ -1,4 +1,5 @@
 """Config flow for Homevolt Local integration."""
+
 from __future__ import annotations
 
 import logging
@@ -17,7 +18,8 @@ from homeassistant.const import (
     CONF_VERIFY_SSL,
 )
 from homeassistant.core import HomeAssistant
-from homeassistant.data_entry_flow import FlowResult
+# from homeassistant.data_entry_flow import FlowResult
+from homeassistant.config_entries import ConfigFlowResult
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .const import (
@@ -88,12 +90,12 @@ def construct_resource_url(host: str) -> str:
 
 
 async def validate_host(
-        hass: HomeAssistant,
-        host: str,
-        username: str | None = None,
-        password: str | None = None,
-        verify_ssl: bool = True,
-        existing_hosts: list[str] | None = None
+    hass: HomeAssistant,
+    host: str,
+    username: str | None = None,
+    password: str | None = None,
+    verify_ssl: bool = True,
+    existing_hosts: list[str] | None = None,
 ) -> dict[str, Any]:
     """Validate a host and return its resource URL."""
     # Validate the host
@@ -132,7 +134,8 @@ async def validate_host(
                 # Check if the response has the expected structure
                 if "aggregated" not in response_data:
                     raise CannotConnect(
-                        "Invalid API response format: 'aggregated' key missing")
+                        "Invalid API response format: 'aggregated' key missing"
+                    )
 
                 return True
         except aiohttp.ClientError as err:
@@ -145,17 +148,19 @@ async def validate_host(
     if verify_ssl:
         # verify_ssl enabled: try HTTPS only
         _LOGGER.info(
-            "SSL verification enabled, attempting HTTPS connection to: %s",
-            resource_url)
+            "SSL verification enabled, attempting HTTPS connection to: %s", resource_url
+        )
         success = await test_connection(resource_url, ssl_verify=True)
         if not success:
             raise CannotConnect(
-                "Failed to connect with HTTPS (SSL verification enabled)")
+                "Failed to connect with HTTPS (SSL verification enabled)"
+            )
     else:
         # verify_ssl disabled: try HTTPS first, then HTTP if it fails
         _LOGGER.info(
             "SSL verification disabled, attempting HTTPS connection to: %s",
-            resource_url)
+            resource_url,
+        )
         success = await test_connection(resource_url, ssl_verify=False)
         if success:
             _LOGGER.info("Successfully connected using HTTPS")
@@ -163,16 +168,16 @@ async def validate_host(
             # Try HTTP
             parsed = urlparse(resource_url)
             # Replace https with http and set port to 80
-            netloc_parts = parsed.netloc.split(':')
+            netloc_parts = parsed.netloc.split(":")
             if len(netloc_parts) > 1:
                 # Has port, replace it
-                netloc_parts[-1] = '80'
-                new_netloc = ':'.join(netloc_parts)
+                netloc_parts[-1] = "80"
+                new_netloc = ":".join(netloc_parts)
             else:
                 # No port, add :80
-                new_netloc = parsed.netloc + ':80'
+                new_netloc = parsed.netloc + ":80"
 
-            http_parsed = parsed._replace(scheme='http', netloc=new_netloc)
+            http_parsed = parsed._replace(scheme="http", netloc=new_netloc)
             http_url = urlunparse(http_parsed)
             _LOGGER.info(
                 "HTTPS failed, attempting HTTP connection to: %s", http_url)
@@ -185,10 +190,7 @@ async def validate_host(
                     "Failed to connect with both HTTPS and HTTP")
 
     # Return the host and resource URL
-    return {
-        "host": host,
-        "resource_url": resource_url
-    }
+    return {"host": host, "resource_url": resource_url}
 
 
 async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str, Any]:
@@ -201,19 +203,14 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
 
     # Validate the host
     host_info = await validate_host(
-        hass,
-        host,
-        username,
-        password,
-        verify_ssl,
-        existing_hosts
+        hass, host, username, password, verify_ssl, existing_hosts
     )
 
     # Return info that you want to store in the config entry.
     return {
         "title": "Homevolt Local",
         "host": host_info["host"],
-        "resource_url": host_info["resource_url"]
+        "resource_url": host_info["resource_url"],
     }
 
 
@@ -234,8 +231,8 @@ class HomevoltConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self.timeout: int = DEFAULT_TIMEOUT
 
     async def async_step_user(
-            self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
         """Handle the initial step."""
         errors: dict[str, str] = {}
         if user_input is not None:
@@ -247,7 +244,8 @@ class HomevoltConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     CONF_PASSWORD, "").strip() or None
                 self.verify_ssl = user_input.get(CONF_VERIFY_SSL, True)
                 self.scan_interval = user_input.get(
-                    CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
+                    CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL
+                )
                 self.timeout = user_input.get(CONF_TIMEOUT, DEFAULT_TIMEOUT)
 
                 # Validate the first host
@@ -285,8 +283,8 @@ class HomevoltConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         )
 
     async def async_step_add_host(
-            self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
         """Handle the add_host step."""
         errors: dict[str, str] = {}
         if user_input is not None:
@@ -335,8 +333,8 @@ class HomevoltConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         )
 
     async def async_step_select_main(
-            self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
         """Handle the select_main step."""
         errors: dict[str, str] = {}
         if user_input is not None:
@@ -363,8 +361,8 @@ class HomevoltConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         )
 
     async def async_step_confirm(
-            self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
         """Handle the confirm step."""
         if user_input is not None:
             # Check if any of the hosts are already configured
