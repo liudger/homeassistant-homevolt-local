@@ -57,28 +57,63 @@ Command 'sched_list' executed successfully
 
         self.assertEqual(len(schedules), 27)
         self.assertEqual(schedule_info["count"], 27)
-        self.assertEqual(schedule_info["current_id"], "linear-optimization2-2025-08-23 21:09")
+        self.assertEqual(
+            schedule_info["current_id"], "linear-optimization2-2025-08-23 21:09"
+        )
 
-        self.assertEqual(schedules[0], ScheduleEntry(
-            id=0, type='Idle schedule', from_time='2025-08-23T23:00:00',
-            to_time='2025-08-23T23:30:00', setpoint=None, offline=False,
-            max_discharge=None, max_charge=None
-        ))
-        self.assertEqual(schedules[1], ScheduleEntry(
-            id=1, type='Grid discharge setpoint', from_time='2025-08-23T23:30:00',
-            to_time='2025-08-24T00:00:00', setpoint=0, offline=None,
-            max_discharge='<max allowed>', max_charge=None
-        ))
-        self.assertEqual(schedules[23], ScheduleEntry(
-            id=23, type='Inverter discharge setpoint', from_time='2025-08-24T19:00:00',
-            to_time='2025-08-24T20:45:00', setpoint=12056, offline=None,
-            max_discharge=None, max_charge=None
-        ))
-        self.assertEqual(schedules[26], ScheduleEntry(
-            id=26, type='Idle schedule', from_time='2025-08-24T22:00:00',
-            to_time='2025-08-25T00:00:00', setpoint=None, offline=False,
-            max_discharge=None, max_charge=None
-        ))
+        self.assertEqual(
+            schedules[0],
+            ScheduleEntry(
+                id=0,
+                type="Idle schedule",
+                from_time="2025-08-23T23:00:00",
+                to_time="2025-08-23T23:30:00",
+                setpoint=None,
+                offline=False,
+                max_discharge=None,
+                max_charge=None,
+            ),
+        )
+        self.assertEqual(
+            schedules[1],
+            ScheduleEntry(
+                id=1,
+                type="Grid discharge setpoint",
+                from_time="2025-08-23T23:30:00",
+                to_time="2025-08-24T00:00:00",
+                setpoint=0,
+                offline=None,
+                max_discharge="<max allowed>",
+                max_charge=None,
+            ),
+        )
+        self.assertEqual(
+            schedules[23],
+            ScheduleEntry(
+                id=23,
+                type="Inverter discharge setpoint",
+                from_time="2025-08-24T19:00:00",
+                to_time="2025-08-24T20:45:00",
+                setpoint=12056,
+                offline=None,
+                max_discharge=None,
+                max_charge=None,
+            ),
+        )
+        self.assertEqual(
+            schedules[26],
+            ScheduleEntry(
+                id=26,
+                type="Idle schedule",
+                from_time="2025-08-24T22:00:00",
+                to_time="2025-08-25T00:00:00",
+                setpoint=None,
+                offline=False,
+                max_discharge=None,
+                max_charge=None,
+            ),
+        )
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()
