@@ -1,7 +1,7 @@
 {
   "domain": "homevolt_local",
   "name": "Homevolt Local",
-  "codeowners": ["@JohNan"],
+  "codeowners": ["@JohNan", "@liudger"],
   "config_flow": true,
   "dependencies": [],
   "documentation": "https://github.com/JohNan/homeassistant-homevolt-local",
