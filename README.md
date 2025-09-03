@@ -1,9 +1,8 @@
 # Homevolt Local Integration for Home Assistant
 
 [![HACS Custom](https://img.shields.io/badge/HACS-Custom-orange.svg?style=for-the-badge)](https://github.com/hacs/integration)
-[![GitHub Latest Release](https://img.shields.io/github/release/liudger/homeassistant-homevolt-local.svg?style=for-the-badge&color=blue)](https://github.com/liudger/homeassistant-homevolt-local/releases)
-[![GitHub All Releases](https://img.shields.io/github/downloads/liudger/homeassistant-homevolt-local/total.svg?style=for-the-badge&color=blue)](https://github.com/liudger/homeassistant-homevolt-local/releases)
-[![Buy Me A Coffee](https://img.shields.io/badge/buy%20me%20a%20coffee-donate-yellow.svg?style=for-the-badge)](https://buymeacoffee.com/liudger)
+[![GitHub Latest Release](https://img.shields.io/github/release/JohNan/homeassistant-homevolt-local.svg?style=for-the-badge&color=blue)](https://github.com/JohNan/homeassistant-homevolt-local/releases)
+[![GitHub All Releases](https://img.shields.io/github/downloads/JohNan/homeassistant-homevolt-local/total.svg?style=for-the-badge&color=blue)](https://github.com/JohNan/homeassistant-homevolt-local/releases)
 
 This is a custom integration for Home Assistant that connects to a Homevolt Energy Management System (EMS) locally and provides comprehensive sensor data for monitoring your energy system.
 
@@ -299,12 +298,6 @@ If you find this integration useful, consider supporting the development.
 - Thanks to the Home Assistant community for their support and feedback
 - Original inspiration from various energy management integrations
 
-## Troubleshooting
-
-- If you encounter connection issues, check your API URL and credentials
-- Verify that your Homevolt Local is online and accessible from your Home Assistant instance
-- Check the Home Assistant logs for detailed error messages
-
 ## Development
 
 ### Development Container
@@ -312,11 +305,3 @@ If you find this integration useful, consider supporting the development.
 This project includes a development container configuration that provides a consistent development environment with all the necessary tools and dependencies pre-installed. The development container supports both VS Code and PyCharm.
 
 For more information on how to use the development container, see the [.devcontainer/README.md](.devcontainer/README.md) file.
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
