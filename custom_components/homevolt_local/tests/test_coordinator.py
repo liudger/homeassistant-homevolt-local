@@ -1,14 +1,17 @@
 import unittest
+from datetime import timedelta
+from unittest.mock import Mock, MagicMock
 from custom_components.homevolt_local import HomevoltDataUpdateCoordinator
 
 
 class TestCoordinator(unittest.TestCase):
     def test_merge_data(self):
         """Test the merging of data from multiple systems."""
-        # We don't need a real coordinator object, just something to call the method on
-        coordinator = HomevoltDataUpdateCoordinator(
-            None, None, None, [], [], "", None, None, None, None, None
-        )
+        # Create a mock coordinator object with minimal setup
+        coordinator = Mock(spec=HomevoltDataUpdateCoordinator)
+
+        # Get the actual _merge_data method from the class
+        merge_method = HomevoltDataUpdateCoordinator._merge_data
 
         main_data = {
             "aggregated": {"ecu_id": 1},
@@ -39,7 +42,8 @@ class TestCoordinator(unittest.TestCase):
             ),
         ]
 
-        merged_data = coordinator._merge_data(results, main_data)
+        # Call the method with the mock self
+        merged_data = merge_method(coordinator, results, main_data)
 
         # The aggregated data should be from the main data
         self.assertEqual(merged_data["aggregated"]["ecu_id"], 1)
@@ -53,13 +57,16 @@ class TestCoordinator(unittest.TestCase):
         # The sensors list should contain unique sensors from all results
         self.assertEqual(len(merged_data["sensors"]), 3)
         self.assertIn(
-            {"euid": "sensor1", "data": "main_sensor_1"}, merged_data["sensors"]
+            {"euid": "sensor1",
+                "data": "main_sensor_1"}, merged_data["sensors"]
         )
         self.assertIn(
-            {"euid": "sensor2", "data": "host2_sensor_2"}, merged_data["sensors"]
+            {"euid": "sensor2",
+                "data": "host2_sensor_2"}, merged_data["sensors"]
         )
         self.assertIn(
-            {"euid": "sensor3", "data": "host2_sensor_3"}, merged_data["sensors"]
+            {"euid": "sensor3",
+                "data": "host2_sensor_3"}, merged_data["sensors"]
         )
 
 
