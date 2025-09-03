@@ -262,8 +262,6 @@ views:
 ### Debug Logging
 
 Enable debug from the dot menu.
-![alt text](image.png)
-
 Or to enable debug logging, add this to your `configuration.yaml`:
 
 ```yaml
