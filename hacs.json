@@ -2,6 +2,5 @@
   "name": "Homevolt Local",
   "content_in_root": false,
   "render_readme": true,
-  "homeassistant": "2025.7.3",
-  "iot_class": "Local Polling"
+  "homeassistant": "2025.7.3"
 }
