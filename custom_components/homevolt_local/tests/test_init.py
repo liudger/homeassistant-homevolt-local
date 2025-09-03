@@ -9,7 +9,7 @@ class TestHomevoltDataUpdateCoordinator(unittest.TestCase):
         """Test parsing of schedule data."""
         # Create a mock coordinator object with minimal setup
         coordinator = Mock(spec=HomevoltDataUpdateCoordinator)
-        
+
         # Get the actual _parse_schedule_data method from the class
         parse_method = HomevoltDataUpdateCoordinator._parse_schedule_data
 

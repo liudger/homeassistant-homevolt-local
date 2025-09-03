@@ -9,10 +9,10 @@ class TestCoordinator(unittest.TestCase):
         """Test the merging of data from multiple systems."""
         # Create a mock coordinator object with minimal setup
         coordinator = Mock(spec=HomevoltDataUpdateCoordinator)
-        
+
         # Get the actual _merge_data method from the class
         merge_method = HomevoltDataUpdateCoordinator._merge_data
-        
+
         main_data = {
             "aggregated": {"ecu_id": 1},
             "ems": [{"ecu_id": 1, "data": "main_ems_1"}],
@@ -57,13 +57,16 @@ class TestCoordinator(unittest.TestCase):
         # The sensors list should contain unique sensors from all results
         self.assertEqual(len(merged_data["sensors"]), 3)
         self.assertIn(
-            {"euid": "sensor1", "data": "main_sensor_1"}, merged_data["sensors"]
+            {"euid": "sensor1",
+                "data": "main_sensor_1"}, merged_data["sensors"]
         )
         self.assertIn(
-            {"euid": "sensor2", "data": "host2_sensor_2"}, merged_data["sensors"]
+            {"euid": "sensor2",
+                "data": "host2_sensor_2"}, merged_data["sensors"]
         )
         self.assertIn(
-            {"euid": "sensor3", "data": "host2_sensor_3"}, merged_data["sensors"]
+            {"euid": "sensor3",
+                "data": "host2_sensor_3"}, merged_data["sensors"]
         )
 
 
