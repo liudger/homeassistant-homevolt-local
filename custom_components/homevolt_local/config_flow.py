@@ -128,8 +128,9 @@ async def validate_host(
 
                 try:
                     response_data = await response.json()
-                except ValueError:
-                    raise CannotConnect("Invalid response format (not JSON)")
+                except ValueError as err:
+                    raise CannotConnect(
+                        "Invalid response format (not JSON)") from err
 
                 # Check if the response has the expected structure
                 if "aggregated" not in response_data:

@@ -6,7 +6,7 @@ import asyncio
 import logging
 import re
 from datetime import timedelta
-from typing import Any, Dict, List, Optional, Union, cast
+from typing import Any, cast
 
 import aiohttp
 import async_timeout
@@ -70,10 +70,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                     main_host_url = resource.replace("/ems.json", "")
                     break
 
-        if main_host_url is None:
+        if main_host_url is None and resources:
             # Fallback: construct from first resource
-            if resources:
-                main_host_url = resources[0].replace("/ems.json", "")
+            main_host_url = resources[0].replace("/ems.json", "")
     else:
         # Old format with a single resource
         resources = [entry.data[CONF_RESOURCE]]
@@ -224,7 +223,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 
 class HomevoltDataUpdateCoordinator(
-    DataUpdateCoordinator[Union[HomevoltData, Dict[str, Any]]]
+    DataUpdateCoordinator[HomevoltData | dict[str, Any]]
 ):
     """Class to manage fetching Homevolt data."""
 
@@ -233,12 +232,12 @@ class HomevoltDataUpdateCoordinator(
         hass: HomeAssistant,
         logger: logging.Logger,
         entry_id: str,
-        resources: List[str],
-        hosts: List[str],
+        resources: list[str],
+        hosts: list[str],
         main_host: str,
-        main_host_url: Optional[str],
-        username: Optional[str],
-        password: Optional[str],
+        main_host_url: str | None,
+        username: str | None,
+        password: str | None,
         session: aiohttp.ClientSession,
         update_interval: timedelta,
         timeout: int,
@@ -259,7 +258,7 @@ class HomevoltDataUpdateCoordinator(
 
         super().__init__(hass, logger, name=DOMAIN, update_interval=update_interval)
 
-    async def _fetch_resource_data(self, resource: str) -> Dict[str, Any]:
+    async def _fetch_resource_data(self, resource: str) -> dict[str, Any]:
         """Fetch data from a single resource."""
         try:
             async with async_timeout.timeout(self.timeout):
@@ -274,7 +273,7 @@ class HomevoltDataUpdateCoordinator(
                             f"Error communicating with API: {resp.status}"
                         )
                     return await resp.json()
-        except asyncio.TimeoutError as error:
+        except TimeoutError as error:
             raise UpdateFailed(
                 f"Timeout error fetching data from {resource}: {error}"
             ) from error
@@ -283,7 +282,7 @@ class HomevoltDataUpdateCoordinator(
                 f"Error fetching data from {resource}: {error}"
             ) from error
 
-    async def _fetch_schedule_data(self) -> Dict[str, Any]:
+    async def _fetch_schedule_data(self) -> dict[str, Any]:
         """Fetch schedule data from the main host."""
         url = f"{self.main_host_url}{CONSOLE_RESOURCE_PATH}"
         command = "sched_list"
@@ -313,7 +312,7 @@ class HomevoltDataUpdateCoordinator(
 
         return schedule_info
 
-    def _parse_schedule_data(self, response_text: str) -> Dict[str, Any]:
+    def _parse_schedule_data(self, response_text: str) -> dict[str, Any]:
         """Parse the schedule data from the text response."""
         schedules = []
         count = 0
@@ -408,7 +407,7 @@ class HomevoltDataUpdateCoordinator(
             schedule_info = {"entries": [], "count": 0, "current_id": None}
         else:
             # Cast to Dict since we know _fetch_schedule_data returns Dict[str, Any]
-            schedule_info = cast(Dict[str, Any], schedule_result)
+            schedule_info = cast(dict[str, Any], schedule_result)
 
         # Process the sensor data results
         valid_results = []
@@ -450,8 +449,8 @@ class HomevoltDataUpdateCoordinator(
         return HomevoltData.from_dict(merged_dict_data)
 
     def _merge_data(
-        self, results: List[tuple[str, Dict[str, Any]]], main_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, results: list[tuple[str, dict[str, Any]]], main_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Merge data from multiple systems."""
         # Start with the main system's data
         merged_data = dict(main_data)

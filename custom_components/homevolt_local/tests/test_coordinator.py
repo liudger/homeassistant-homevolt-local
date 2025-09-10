@@ -1,6 +1,5 @@
 import unittest
-from datetime import timedelta
-from unittest.mock import Mock, MagicMock
+from unittest.mock import Mock
 from custom_components.homevolt_local import HomevoltDataUpdateCoordinator
 
 

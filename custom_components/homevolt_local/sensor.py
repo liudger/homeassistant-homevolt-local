@@ -4,7 +4,8 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Callable, Dict, Union
+from typing import Any
+from collections.abc import Callable
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -55,10 +56,10 @@ def get_current_schedule(data: HomevoltData) -> str:
 class HomevoltSensorEntityDescription(SensorEntityDescription):
     """Describes Homevolt sensor entity."""
 
-    value_fn: Callable[[Union[HomevoltData, Dict[str, Any]]], Any] = None
-    icon_fn: Callable[[Union[HomevoltData, Dict[str, Any]]], str] = None
-    attrs_fn: Callable[[Union[HomevoltData, Dict[str, Any]]],
-                       Dict[str, Any]] = None
+    value_fn: Callable[[HomevoltData | dict[str, Any]], Any] = None
+    icon_fn: Callable[[HomevoltData | dict[str, Any]], str] = None
+    attrs_fn: Callable[[HomevoltData | dict[str, Any]],
+                       dict[str, Any]] = None
     # Whether this sensor is specific to a device in the ems array
     device_specific: bool = False
     # Whether this sensor is specific to a device in the sensors array
@@ -675,15 +676,13 @@ async def async_setup_entry(
 
         # Create sensor-specific sensors for each sensor type
         for description in SENSOR_DESCRIPTIONS:
-            if description.sensor_specific and description.sensor_type:
-                # Check if we have a sensor of this type
-                if description.sensor_type in available_sensor_types:
-                    # Find the index of the sensor with this type
-                    for idx, sensor in enumerate(sensors_data):
-                        if sensor.type == description.sensor_type and sensor.available is not False:
-                            # Create a sensor for this type
-                            sensors.append(HomevoltSensor(
-                                coordinator, description, None, idx))
-                            break
+            if description.sensor_specific and description.sensor_type and description.sensor_type in available_sensor_types:
+                # Find the index of the sensor with this type
+                for idx, sensor in enumerate(sensors_data):
+                    if sensor.type == description.sensor_type and sensor.available is not False:
+                        # Create a sensor for this type
+                        sensors.append(HomevoltSensor(
+                            coordinator, description, None, idx))
+                        break
 
     async_add_entities(sensors)

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 from .const import (
     ATTR_AGGREGATED,
@@ -30,16 +30,16 @@ class ScheduleEntry:
     """Model for a single schedule entry."""
 
     id: int
-    type: Optional[str] = None
-    from_time: Optional[str] = None
-    to_time: Optional[str] = None
-    setpoint: Optional[Union[int, str]] = None
-    offline: Optional[bool] = None
-    max_discharge: Optional[str] = None
-    max_charge: Optional[str] = None
+    type: str | None = None
+    from_time: str | None = None
+    to_time: str | None = None
+    setpoint: int | str | None = None
+    offline: bool | None = None
+    max_discharge: str | None = None
+    max_charge: str | None = None
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> ScheduleEntry:
+    def from_dict(cls, data: dict[str, Any]) -> ScheduleEntry:
         """Create a ScheduleEntry from a dictionary."""
         return cls(
             id=data.get("id", 0),
@@ -63,7 +63,7 @@ class EmsInfo:
     rated_power: int
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> EmsInfo:
+    def from_dict(cls, data: dict[str, Any]) -> EmsInfo:
         """Create an EmsInfo from a dictionary."""
         return cls(
             protocol_version=data.get("protocol_version", 0),
@@ -83,7 +83,7 @@ class BmsInfo:
     id: int
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> BmsInfo:
+    def from_dict(cls, data: dict[str, Any]) -> BmsInfo:
         """Create a BmsInfo from a dictionary."""
         return cls(
             fw_version=data.get("fw_version", ""),
@@ -101,7 +101,7 @@ class InvInfo:
     serial_number: str
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> InvInfo:
+    def from_dict(cls, data: dict[str, Any]) -> InvInfo:
         """Create an InvInfo from a dictionary."""
         return cls(
             fw_version=data.get("fw_version", ""),
@@ -118,7 +118,7 @@ class EmsConfig:
     control_timeout: bool
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> EmsConfig:
+    def from_dict(cls, data: dict[str, Any]) -> EmsConfig:
         """Create an EmsConfig from a dictionary."""
         return cls(
             grid_code_preset=data.get("grid_code_preset", 0),
@@ -134,7 +134,7 @@ class InvConfig:
     ffr_fstart_freq: int
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> InvConfig:
+    def from_dict(cls, data: dict[str, Any]) -> InvConfig:
         """Create an InvConfig from a dictionary."""
         return cls(
             ffr_fstart_freq=data.get("ffr_fstart_freq", 0),
@@ -161,7 +161,7 @@ class EmsControl:
     allow_dfu: bool
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> EmsControl:
+    def from_dict(cls, data: dict[str, Any]) -> EmsControl:
         """Create an EmsControl from a dictionary."""
         return cls(
             mode_sel=data.get("mode_sel", 0),
@@ -189,11 +189,11 @@ class EmsData:
     state: int
     state_str: str
     info: int
-    info_str: List[str]
+    info_str: list[str]
     warning: int
-    warning_str: List[str]
+    warning_str: list[str]
     alarm: int
-    alarm_str: List[str]
+    alarm_str: list[str]
     phase_angle: int
     frequency: int
     phase_seq: int
@@ -208,7 +208,7 @@ class EmsData:
     soc_avg: int
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> EmsData:
+    def from_dict(cls, data: dict[str, Any]) -> EmsData:
         """Create an EmsData from a dictionary."""
         return cls(
             timestamp_ms=data.get("timestamp_ms", 0),
@@ -245,12 +245,12 @@ class BmsData:
     state: int
     state_str: str
     alarm: int
-    alarm_str: List[str]
+    alarm_str: list[str]
     tmin: int
     tmax: int
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> BmsData:
+    def from_dict(cls, data: dict[str, Any]) -> BmsData:
         """Create a BmsData from a dictionary."""
         return cls(
             energy_avail=data.get("energy_avail", 0),
@@ -279,7 +279,7 @@ class EmsPrediction:
     avail_group_fuse_di_pwr: int
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> EmsPrediction:
+    def from_dict(cls, data: dict[str, Any]) -> EmsPrediction:
         """Create an EmsPrediction from a dictionary."""
         return cls(
             avail_ch_pwr=data.get("avail_ch_pwr", 0),
@@ -305,7 +305,7 @@ class EmsVoltage:
     l3_l1: int
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> EmsVoltage:
+    def from_dict(cls, data: dict[str, Any]) -> EmsVoltage:
         """Create an EmsVoltage from a dictionary."""
         return cls(
             l1=data.get("l1", 0),
@@ -326,7 +326,7 @@ class EmsCurrent:
     l3: int
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> EmsCurrent:
+    def from_dict(cls, data: dict[str, Any]) -> EmsCurrent:
         """Create an EmsCurrent from a dictionary."""
         return cls(
             l1=data.get("l1", 0),
@@ -343,7 +343,7 @@ class EmsAggregate:
     exported_kwh: float
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> EmsAggregate:
+    def from_dict(cls, data: dict[str, Any]) -> EmsAggregate:
         """Create an EmsAggregate from a dictionary."""
         return cls(
             imported_kwh=data.get("imported_kwh", 0.0),
@@ -361,7 +361,7 @@ class PhaseData:
     pf: float
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> PhaseData:
+    def from_dict(cls, data: dict[str, Any]) -> PhaseData:
         """Create a PhaseData from a dictionary."""
         return cls(
             voltage=data.get("voltage", 0.0),
@@ -383,7 +383,7 @@ class SensorData:
     rssi: int
     average_rssi: float
     pdr: float
-    phase: List[PhaseData]
+    phase: list[PhaseData]
     frequency: int
     total_power: int
     energy_imported: float
@@ -391,7 +391,7 @@ class SensorData:
     timestamp: int
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> SensorData:
+    def from_dict(cls, data: dict[str, Any]) -> SensorData:
         """Create a SensorData from a dictionary."""
         return cls(
             type=data.get(ATTR_TYPE, ""),
@@ -423,13 +423,13 @@ class EmsDevice:
     op_state: int
     op_state_str: str
     ems_info: EmsInfo
-    bms_info: List[BmsInfo]
+    bms_info: list[BmsInfo]
     inv_info: InvInfo
     ems_config: EmsConfig
     inv_config: InvConfig
     ems_control: EmsControl
     ems_data: EmsData
-    bms_data: List[BmsData]
+    bms_data: list[BmsData]
     ems_prediction: EmsPrediction
     ems_voltage: EmsVoltage
     ems_current: EmsCurrent
@@ -437,7 +437,7 @@ class EmsDevice:
     error_cnt: int
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> EmsDevice:
+    def from_dict(cls, data: dict[str, Any]) -> EmsDevice:
         """Create an EmsDevice from a dictionary."""
         if not data:
             # Return a default EmsDevice with empty values
@@ -544,15 +544,15 @@ class HomevoltData:
 
     type: str = field(metadata={"json_field_name": "$type"})
     ts: int
-    ems: List[EmsDevice]
+    ems: list[EmsDevice]
     aggregated: EmsDevice
-    sensors: List[SensorData]
-    schedules: List[ScheduleEntry] = field(default_factory=list)
-    schedule_count: Optional[int] = None
-    schedule_current_id: Optional[str] = None
+    sensors: list[SensorData]
+    schedules: list[ScheduleEntry] = field(default_factory=list)
+    schedule_count: int | None = None
+    schedule_current_id: str | None = None
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> HomevoltData:
+    def from_dict(cls, data: dict[str, Any]) -> HomevoltData:
         """Create a HomevoltData object from a dictionary."""
         return cls(
             type=data.get("$type", ""),
